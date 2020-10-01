@@ -1,9 +1,14 @@
-#include "MKL25Z4.h"                    // Device header
-#include <stdbool.h> 
-#include "led.h"
-#include "delay.h"
+#include "RTE_Components.h"
+#include  CMSIS_device_header
+#include "cmsis_os2.h"
+#include <stdbool.h>
 
-void init_led() {
+#include "led.h"
+
+const color_t green_leds[] = {Green1, Green2, Green3, Green4, Green5, Green6, Green7, Green8};
+const int green_led_num = sizeof(green_leds)/sizeof(green_leds[0]);
+
+void init_led(void) {
 	// Enable Clock to PORTC and PORTE
 	SIM->SCGC5 |= (SIM_SCGC5_PORTC_MASK | SIM_SCGC5_PORTE_MASK);
 	
@@ -96,52 +101,39 @@ void off_led(color_t color) {
 			GPIOE_PDOR &= ~MASK(GREEN_LED_8);
 			break;
 	}
-	if (color == Red) {
-		GPIOC_PDOR &= ~MASK(RED_LED);
-	}
 }
 
-void flash_green() {
-	// turn off all leds first in case switching from all on mode
-	for (int i = 0; i < green_led_num; i++) {
+void flash_green(volatile bool *shouldStop) {
+	for (int i = 0; i < green_led_num && !(*shouldStop); i++) {
+		flash_led(green_leds[i]);
+		osDelay(500);
 		off_led(green_leds[i]);
 	}
-	
-	while (true) {
-		for (int i = 0; i < green_led_num; i++) {
-			flash_led(green_leds[i]);
-			delay(500);
-			off_led(green_leds[i]);
-		}
-	}
 }
 
-void on_green() {
+void on_green(void) {
 	for (int i = 0; i < green_led_num; i++) {
 		flash_led(green_leds[i]);
 	}
 }
 
-void flash_red(int duration_ms) {
-	while (true) {
-		flash_led(Red);
-		delay(duration_ms);
-		off_led(Red);
-		delay(duration_ms);
+void off_green(void) {
+	for (int i = 0; i < green_led_num; i++) {
+		off_led(green_leds[i]);
 	}
 }
 
-void flash_red_fast() {
+void flash_red(int duration_ms) {
+	flash_led(Red);
+	osDelay(duration_ms);
+	off_led(Red);
+	osDelay(duration_ms);
+}
+
+void flash_red_fast(void) {
 	flash_red(250);
 }
 
-void flash_red_slow() {
+void flash_red_slow(void) {
 	flash_red(500);
 }
-
-///* MAIN function */
-//int main(void) 
-//{
-//	init_led();
-//	flash_green();
-//}
