@@ -1,6 +1,8 @@
 #ifndef LED_H
 #define LED_H
 
+#include <stdbool.h>
+
 #define RED_LED 11  // PortC Pin 11
 #define GREEN_LED_1 30  // PortE Pin 30, top most
 #define GREEN_LED_2 29  // PortE Pin 29
@@ -25,16 +27,17 @@ typedef enum {
 	Green8
 } color_t;
 
-const color_t green_leds[] = {Green1, Green2, Green3, Green4, Green5, Green6, Green7, Green8};
-const int green_led_num = sizeof(green_leds)/sizeof(green_leds[0]);
+extern const color_t green_leds[];
+extern const int green_led_num;
 
-void init_led();
+void init_led(void);
 void flash_led(color_t color);
 void off_led(color_t color);
-void flash_green();
-void on_green();
+void flash_green(volatile bool *shouldStop);
+void on_green(void);
+void off_green(void);
 void flash_red(int duration_ms);
-void flash_red_fast();
-void flash_red_slow();
+void flash_red_fast(void);
+void flash_red_slow(void);
 
 #endif /* LED_H */
