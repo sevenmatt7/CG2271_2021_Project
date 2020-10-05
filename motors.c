@@ -9,7 +9,7 @@
 #define DOWN 0x11
 #define LEFT 0x10
 #define RIGHT 0x01
-#define SPEED 150
+#define SPEED 100
 
 volatile uint8_t direction = 0x00;
 
@@ -63,7 +63,7 @@ void initMotor (void) {
 }
 
 /* The two functions below change the duty cycle of the PWM signal, changing the power supplied to the motors
-		which will change the speed that it runs at */
+		which will change the speed that it runs at 
 void setLeftPower(uint8_t percentage) {
 	if (direction == 0x10) {
 		TPM2_C0V = 0;
@@ -83,6 +83,36 @@ void setRightPower(uint8_t percentage) {
 		TPM1_C0V = (int) (percentage * 7499.0 / 255);
 		TPM1_C1V = 0;
 	}
+}
+*/
+
+/* The two functions below change the duty cycle of the PWM signal, changing the power supplied to the motors
+		which will change the speed that it runs at */
+void setLeftPower(uint8_t percentage) {
+		if (direction == 0x10) {
+				TPM2_C0V = (int) (percentage * 7499.0 / 255);
+				TPM2_C1V = 0;
+		} else if (direction == 0x11) {
+				TPM2_C0V = 0;
+				TPM2_C1V = (int) (percentage * 7499.0 / 255);
+		} else {
+				TPM2_C0V = (int) (percentage * 7499.0 / 255);
+				TPM2_C1V = 0;
+		}
+}
+
+
+void setRightPower(uint8_t percentage) {
+		if (direction == 0x01) {
+				TPM1_C0V = (int) (percentage * 7499.0 / 255);
+				TPM1_C1V = 0;
+		} else if (direction == 0x11) {
+				TPM1_C0V = 0;
+				TPM1_C1V = (int) (percentage * 7499.0 / 255);
+		} else {
+				TPM1_C0V = (int) (percentage * 7499.0 / 255);
+				TPM1_C1V = 0;
+		}
 }
 
 // to stop all the motors
@@ -117,14 +147,4 @@ void turnLeft(void) {
 	direction = UP;
 	setLeftPower(SPEED);
 	setRightPower(SPEED/4);
-}
-
-
-int main(void) {
-	initMotor();
-	
-	while (1) {
-		forward();
-	}
-	
 }
