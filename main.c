@@ -202,7 +202,7 @@ void bluetooth_thread(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsWaitAny, osWaitForever);
 		osMutexAcquire(mutex_led, osWaitForever);
-		flash_red_slow();
+		connection_leds();
 		osMutexRelease(mutex_led);
 	}
 }
@@ -213,8 +213,7 @@ void static_led_thread(void *argument) {
 		//use NoClear so the flags won't be cleared after one execution, only clear in the brain_thread
 		osEventFlagsWait(event_select, STATIONARY_FLAG, osFlagsNoClear, osWaitForever);
 		osMutexAcquire(mutex_led, osWaitForever);
-		flash_red_fast();
-		on_green(); 
+		stationary_leds();
 		osMutexRelease(mutex_led);
 	}
 }
@@ -225,8 +224,7 @@ void running_led_thread(void *argument) {
 		//use NoClear so the flags won't be cleared after one execution, only clear in the brain thread
 		osEventFlagsWait(event_select, RUNNING_LED_FLAG, osFlagsNoClear, osWaitForever); 
 		osMutexAcquire(mutex_led, osWaitForever);
-		flash_red_slow();
-		flash_green(isStopped);
+		running_leds(isStopped);
 		osMutexRelease(mutex_led);
 	}
 }
@@ -301,6 +299,6 @@ int main (void) {
 	osThreadNew(end_thread, NULL, NULL); 
 	osThreadNew(loop_music_thread, NULL, NULL); 
 
-	osKernelStart();                      // Start thread execution
+	osKernelStart();    // Start thread execution
 	for (;;) {}
 }
