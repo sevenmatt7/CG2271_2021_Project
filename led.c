@@ -103,13 +103,13 @@ void off_led(color_t color) {
 	}
 }
 
-void flash_green(volatile bool *shouldStop) {
-	for (int i = 0; i < green_led_num && !(*shouldStop); i++) {
-		flash_led(green_leds[i]);
-		osDelay(500);
-		off_led(green_leds[i]);
-	}
-}
+// void flash_green(volatile bool *shouldStop) {
+// 	for (int i = 0; i < green_led_num && !(*shouldStop); i++) {
+// 		flash_led(green_leds[i]);
+// 		osDelay(500);
+// 		off_led(green_leds[i]);
+// 	}
+// }
 
 void on_green(void) {
 	for (int i = 0; i < green_led_num; i++) {
@@ -136,4 +136,33 @@ void flash_red_fast(void) {
 
 void flash_red_slow(void) {
 	flash_red(500);
+}
+
+/* Green LEDs will be in running mode and red will flash SLOW */
+void running_leds(volatile bool *shouldStop) {
+	for (int i = 0; i < green_led_num && !(*shouldStop); i++) {
+		flash_red_slow();
+		flash_led(green_leds[i]);
+		osDelay(500);
+		off_led(green_leds[i]);
+	}
+}
+
+/* Will flash red FAST and turn on green when robot is stationary */
+void stationary_leds(void) {
+	flash_red_fast();
+	turnOnGreen();
+	osDelay(250);				
+}
+
+/* When bluetooth connection is successful, it will blink twice */
+void connection_leds(void) {
+	on_green();
+	osDelay(1000);
+	off_green();
+	osDelay(1000);
+	on_green();
+	osDelay(1000);
+	off_green();
+	osDelay(1000);
 }

@@ -33,11 +33,13 @@ extern const int green_led_num;
 void init_led(void);
 void flash_led(color_t color);
 void off_led(color_t color);
-void flash_green(volatile bool *shouldStop);
 void on_green(void);
 void off_green(void);
 void flash_red(int duration_ms);
 void flash_red_fast(void);
 void flash_red_slow(void);
+void running_leds(volatile bool *shouldStop);
+void stationary_leds(void);
+void connection_leds(void);
 
 #endif /* LED_H */
