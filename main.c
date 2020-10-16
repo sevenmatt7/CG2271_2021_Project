@@ -184,7 +184,7 @@ void loop_music_thread(void *argument) {
 	while (true) {
 		// start_theme();
 		// TODO: loop this and check condition, if condition is met jump out directly to play the end_theme
-		osEventFlagsWait(event_select, LOOP_FLAG, osFlagsNoClear, osWaitForever);
+		osEventFlagsWait(event_select, LOOP_FLAG, osFlagsWaitAny, osWaitForever);
 		loop_theme();
 		// end_theme();	
 	}
