@@ -412,6 +412,11 @@
               <FileType>5</FileType>
               <FilePath>.\music.h</FilePath>
             </File>
+            <File>
+              <FileName>motors.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\motors.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

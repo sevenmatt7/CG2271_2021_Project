@@ -89,10 +89,10 @@ void setRightPower(uint8_t percentage) {
 /* The two functions below change the duty cycle of the PWM signal, changing the power supplied to the motors
 		which will change the speed that it runs at */
 void setLeftPower(uint8_t percentage) {
-		if (direction == 0x10) {
+		if (direction == LEFT) {
 				TPM2_C0V = (int) (percentage * 7499.0 / 255);
 				TPM2_C1V = 0;
-		} else if (direction == 0x11) {
+		} else if (direction == DOWN) {
 				TPM2_C0V = 0;
 				TPM2_C1V = (int) (percentage * 7499.0 / 255);
 		} else {
@@ -103,10 +103,10 @@ void setLeftPower(uint8_t percentage) {
 
 
 void setRightPower(uint8_t percentage) {
-		if (direction == 0x01) {
+		if (direction == RIGHT) {
 				TPM1_C0V = (int) (percentage * 7499.0 / 255);
 				TPM1_C1V = 0;
-		} else if (direction == 0x11) {
+		} else if (direction == DOWN) {
 				TPM1_C0V = 0;
 				TPM1_C1V = (int) (percentage * 7499.0 / 255);
 		} else {
@@ -132,19 +132,19 @@ void forward(void) {
 }
 
 void reverse(void) {
-	direction = UP;
+	direction = DOWN;
 	setLeftPower(SPEED);
 	setRightPower(SPEED);
 }
 
 void turnRight(void) {
-	direction = UP;
-	setLeftPower(SPEED/4);
-	setRightPower(SPEED);
+	direction = LEFT;
+	setLeftPower(SPEED);
+	setRightPower(SPEED/4);
 }
 
 void turnLeft(void) {
-	direction = UP;
-	setLeftPower(SPEED);
-	setRightPower(SPEED/4);
+	direction = RIGHT;
+	setLeftPower(SPEED/4);
+	setRightPower(SPEED);
 }
