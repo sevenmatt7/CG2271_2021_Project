@@ -33,6 +33,7 @@ extern const int green_led_num;
 void init_led(void);
 void flash_led(color_t color);
 void off_led(color_t color);
+void toggle_red(void);
 void on_green(void);
 void off_green(void);
 void flash_red(int duration_ms);
