@@ -145,6 +145,7 @@ void flash_red_slow(void) {
 
 /* Green LEDs will be in running mode and red will flash SLOW */
 void running_leds(volatile bool *shouldStop) {
+	off_green();
 	for (int i = 0; i < green_led_num && !(*shouldStop); i++) {
 		toggle_red();
 		flash_led(green_leds[i]);
@@ -155,9 +156,8 @@ void running_leds(volatile bool *shouldStop) {
 
 /* Green LEDs will be on throughout and red will flash FAST */
 void stationary_leds(void) {
-	flash_red_fast();
 	on_green();
-	osDelay(250);				
+	flash_red_fast();
 }
 
 /* When bluetooth connection is successful, green LEDs will blink twice*/
