@@ -152,7 +152,7 @@ void UART2_IRQHandler(void) {
 
 /** =============== PROGRAM THREADS =============== **/
 //This is the thread that executes throughout as the robot is moving
-void loop_music_thread(void *argument) {
+void tLoopMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, LOOP_FLAG, osFlagsNoClear, osWaitForever);
 		loop_theme(isEnded);
@@ -160,7 +160,7 @@ void loop_music_thread(void *argument) {
 }
 
 // This is the thread that executes after the robot has received confirmation that it has reached the end of the maze
-void end_thread(void *argument) {
+void tEndMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, END_FLAG, osFlagsWaitAny, osWaitForever);
 		osEventFlagsClear(event_select, LOOP_FLAG);
@@ -170,18 +170,16 @@ void end_thread(void *argument) {
 }
 
 // This is the thread that executes after the robot has received confirmation of bluetooth connection from the app
-void bluetooth_thread(void *argument) {
-	
+void tBluetooth(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsNoClear, osWaitForever);
 		osMutexAcquire(mutex_led, osWaitForever);
 		connection_leds();
 		osMutexRelease(mutex_led);
-		
 	}
 }
 
-void start_theme_thread(void *argument) {
+void tStartMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsWaitAny, osWaitForever);
 		start_theme();
@@ -190,9 +188,9 @@ void start_theme_thread(void *argument) {
 }
 
 // This is the thread that executes for the LEDs to be in 'static' mode when the robot is stationary
-void static_led_thread(void *argument) {
+void tStaticLED(void *argument) {
 	while (true) {
-		//use NoClear so the flags won't be cleared after one execution, only clear in the brain_thread
+		//use NoClear so the flags won't be cleared after one execution, only clear in the tBrain
 		osEventFlagsWait(event_select, STATIONARY_FLAG, osFlagsNoClear, osWaitForever);
 		osMutexAcquire(mutex_led, osWaitForever);
 		stationary_leds();
@@ -201,7 +199,7 @@ void static_led_thread(void *argument) {
 }
 
 // This is the thread that executes for the LEDs to be in 'running' mode when the robot is moving
-void running_led_thread(void *argument) {
+void tRunningLED(void *argument) {
 	while (true) {
 		//use NoClear so the flags won't be cleared after one execution, only clear in the brain thread
 		osEventFlagsWait(event_select, RUNNING_LED_FLAG, osFlagsNoClear, osWaitForever); 
@@ -212,7 +210,7 @@ void running_led_thread(void *argument) {
 }
 
 // This is the thread that executes after every UART Interrupt has been handled.
-void brain_thread(void *argument) {
+void tBrain(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, UART_FLAG, osFlagsWaitAny, osWaitForever);
 		switch(rx_data) {
@@ -294,13 +292,13 @@ int main (void) {
 	osEventFlagsSet(event_select, STATIONARY_FLAG);
 
 	// Initialise all the threads
-	osThreadNew(brain_thread, NULL, NULL);   
-	osThreadNew(bluetooth_thread, NULL, NULL);  
-	osThreadNew(start_theme_thread, NULL, NULL);
-	osThreadNew(static_led_thread, NULL, NULL);  
-	osThreadNew(running_led_thread, NULL, NULL); 
-	osThreadNew(end_thread, NULL, NULL); 
-	osThreadNew(loop_music_thread, NULL, NULL); 
+	osThreadNew(tBrain, NULL, NULL);   
+	osThreadNew(tBluetooth, NULL, NULL);  
+	osThreadNew(tStartMusic, NULL, NULL);
+	osThreadNew(tStaticLED, NULL, NULL);  
+	osThreadNew(tRunningLED, NULL, NULL); 
+	osThreadNew(tEndMusic, NULL, NULL); 
+	osThreadNew(tLoopMusic, NULL, NULL); 
 
 	osKernelStart();    // Start thread execution
 	for (;;) {}
