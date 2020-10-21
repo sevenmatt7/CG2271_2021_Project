@@ -10,3 +10,5 @@ void forward(void);
 void reverse(void);
 void turnLeft(void);
 void turnRight(void);
+void pivotLeft(void);
+void pivotRight(void);
