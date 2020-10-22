@@ -11,7 +11,7 @@
 #define RIGHT 0x01
 #define SPEED 100
 
-volatile uint8_t direction = 0x00;
+volatile uint8_t direction_left = 0x00;
 
 /** Sets up the pins used for pwm to control the motors */ 
 void initMotor (void) {
@@ -146,5 +146,17 @@ void turnRight(void) {
 void turnLeft(void) {
 	direction = RIGHT;
 	setLeftPower(SPEED/4);
+	setRightPower(SPEED);
+}
+
+void pivotRight(void) {
+	direction = RIGHT;
+	setLeftPower(SPEED);
+	setRightPower(0);
+}
+
+void pivotLeft(void) {
+	direction = LEFT;
+	setLeftPower(0);
 	setRightPower(SPEED);
 }

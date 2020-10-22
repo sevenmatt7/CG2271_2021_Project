@@ -183,6 +183,7 @@ void tStartMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsWaitAny, osWaitForever);
 		start_theme();
+		
 		osEventFlagsSet(event_select, LOOP_FLAG);
 	}
 }
