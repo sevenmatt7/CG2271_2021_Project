@@ -20,7 +20,7 @@
 #define UART2_INT_PRIO 128
 #define Q_SIZE (32)
 
-// These are flags to indicate what event should be flagged to be performed next by the robot
+/** =============== EVENT FLAGS =============== **/
 #define UART_FLAG 0x00000001
 #define RUNNING_LED_FLAG 0x00000002
 #define CONNECT_FLAG 0x00000004
@@ -29,6 +29,7 @@
 #define STATIONARY_FLAG 0x00000020
 #define CLEAR_FLAG 0xFFFFFFFF
 
+/** =============== GLOBAL VARIABLES =============== **/
 volatile bool *isStopped = &(bool){false};
 volatile bool *isEnded = &(bool){false};
 volatile uint8_t rx_data = 0x00;
@@ -135,13 +136,6 @@ void initUART2(void)
 void UART2_IRQHandler(void) {	
 	NVIC_ClearPendingIRQ(UART2_IRQn);
 	
-	/*
-	if (UART2->S1 & UART_S1_RDRF_MASK) {
-		rx_data = UART2->D;
-		debug = !debug;
-	}
-	*/
-	
 	//RECEIVER
 	if (UART2->S1 & UART_S1_RDRF_MASK) {		
 		if (!Q_Full(&rx_q)) {
@@ -158,7 +152,7 @@ void UART2_IRQHandler(void) {
 
 /** =============== PROGRAM THREADS =============== **/
 //This is the thread that executes throughout as the robot is moving
-void loop_music_thread(void *argument) {
+void tLoopMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, LOOP_FLAG, osFlagsNoClear, osWaitForever);
 		loop_theme(isEnded);
@@ -166,7 +160,7 @@ void loop_music_thread(void *argument) {
 }
 
 // This is the thread that executes after the robot has received confirmation that it has reached the end of the maze
-void end_thread(void *argument) {
+void tEndMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, END_FLAG, osFlagsWaitAny, osWaitForever);
 		osEventFlagsClear(event_select, LOOP_FLAG);
@@ -176,31 +170,27 @@ void end_thread(void *argument) {
 }
 
 // This is the thread that executes after the robot has received confirmation of bluetooth connection from the app
-void bluetooth_thread(void *argument) {
-	
+void tBluetooth(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsNoClear, osWaitForever);
 		osMutexAcquire(mutex_led, osWaitForever);
 		connection_leds();
 		osMutexRelease(mutex_led);
-		
 	}
 }
 
-void start_theme_thread(void *argument) {
+void tStartMusic(void *argument) {
 	while (true) {
-		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsNoClear, osWaitForever);
+		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsWaitAny, osWaitForever);
 		start_theme();
-		osEventFlagsClear(event_select, CONNECT_FLAG);
 		osEventFlagsSet(event_select, LOOP_FLAG);
-		
 	}
 }
 
 // This is the thread that executes for the LEDs to be in 'static' mode when the robot is stationary
-void static_led_thread(void *argument) {
+void tStaticLED(void *argument) {
 	while (true) {
-		//use NoClear so the flags won't be cleared after one execution, only clear in the brain_thread
+		//use NoClear so the flags won't be cleared after one execution, only clear in the tBrain
 		osEventFlagsWait(event_select, STATIONARY_FLAG, osFlagsNoClear, osWaitForever);
 		osMutexAcquire(mutex_led, osWaitForever);
 		stationary_leds();
@@ -209,7 +199,7 @@ void static_led_thread(void *argument) {
 }
 
 // This is the thread that executes for the LEDs to be in 'running' mode when the robot is moving
-void running_led_thread(void *argument) {
+void tRunningLED(void *argument) {
 	while (true) {
 		//use NoClear so the flags won't be cleared after one execution, only clear in the brain thread
 		osEventFlagsWait(event_select, RUNNING_LED_FLAG, osFlagsNoClear, osWaitForever); 
@@ -220,7 +210,7 @@ void running_led_thread(void *argument) {
 }
 
 // This is the thread that executes after every UART Interrupt has been handled.
-void brain_thread(void *argument) {
+void tBrain(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, UART_FLAG, osFlagsWaitAny, osWaitForever);
 		switch(rx_data) {
@@ -231,28 +221,28 @@ void brain_thread(void *argument) {
 				*isStopped = true;
 				*isEnded = false;
 				break;
-			case 0x01:   //if 03 is received from bluetooth, the robot will reverse
+			case 0x01:   //if 03 is received from bluetooth, the robot will move forward
 				forward();
 				osEventFlagsClear(event_select, STATIONARY_FLAG);
 				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
 				*isStopped = false;
 				*isEnded = false;
 				break;
-			case 0x02:  //if 02 is received from bluetooth, the robot will turn left
+			case 0x02:  //if 02 is received from bluetooth, the robot will reverse
 				reverse();
 				osEventFlagsClear(event_select, STATIONARY_FLAG);
 				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
 				*isStopped = false;
 				*isEnded = false;
 				break;
-			case 0x03:  //if 01 is received from bluetooth, the robot will turn right
+			case 0x03:  //if 01 is received from bluetooth, the robot will turn left
 				turnLeft();
 				osEventFlagsClear(event_select, STATIONARY_FLAG);
 				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
 				*isStopped = false;
 				*isEnded = false;
 				break;
-			case 0x04:  //if 04 is received from bluetooth, the robot will move forward
+			case 0x04:  //if 04 is received from bluetooth, the robot will turn right 
 				turnRight();
 				osEventFlagsClear(event_select, STATIONARY_FLAG);
 				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
@@ -262,10 +252,23 @@ void brain_thread(void *argument) {
 			case 0x05:  //if 05 is received from bluetooth, the end_flag will be set and the end music will play
 				osEventFlagsSet(event_select, END_FLAG);
 				*isEnded = true;
-				
 				break;
 			case 0x06: //if 06 is received from bluetooth, this signals to the robot that bluetooth has been established
 				osEventFlagsSet(event_select, CONNECT_FLAG);
+				break;
+			case 0x07:  //if 01 is received from bluetooth, the robot will pivot left
+				pivotLeft();
+				osEventFlagsClear(event_select, STATIONARY_FLAG);
+				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
+				*isStopped = false;
+				*isEnded = false;
+				break;
+			case 0x08:  //if 04 is received from bluetooth, the robot will pivot right
+				pivotRight();
+				osEventFlagsClear(event_select, STATIONARY_FLAG);
+				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
+				*isStopped = false;
+				*isEnded = false;
 				break;
 		}
 	}
@@ -289,13 +292,13 @@ int main (void) {
 	osEventFlagsSet(event_select, STATIONARY_FLAG);
 
 	// Initialise all the threads
-	osThreadNew(brain_thread, NULL, NULL);   
-	osThreadNew(bluetooth_thread, NULL, NULL);  
-	osThreadNew(start_theme_thread, NULL, NULL);
-	osThreadNew(static_led_thread, NULL, NULL);  
-	osThreadNew(running_led_thread, NULL, NULL); 
-	osThreadNew(end_thread, NULL, NULL); 
-	osThreadNew(loop_music_thread, NULL, NULL); 
+	osThreadNew(tBrain, NULL, NULL);   
+	osThreadNew(tBluetooth, NULL, NULL);  
+	osThreadNew(tStartMusic, NULL, NULL);
+	osThreadNew(tStaticLED, NULL, NULL);  
+	osThreadNew(tRunningLED, NULL, NULL); 
+	osThreadNew(tEndMusic, NULL, NULL); 
+	osThreadNew(tLoopMusic, NULL, NULL); 
 
 	osKernelStart();    // Start thread execution
 	for (;;) {}
