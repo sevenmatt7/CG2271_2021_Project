@@ -1,10 +1,11 @@
 #include "RTE_Components.h"
 #include  CMSIS_device_header
 
-#define PTB0_Pin 0  //PTB0 TPM1_CH0, front right motor
-#define PTB1_Pin 1  //PTB1 TPM1_CH1, back right motor
-#define PTB2_Pin 2  //PTB2 TPM2_CH0, front left motor
-#define PTB3_Pin 3  //PTB3 TPM2_CH1, back left motor
+// TPM1 is used to control the right motors, TPM2 is used to control the left motors
+#define PTB0_Pin 0  //PTB0 TPM1_CH0
+#define PTB1_Pin 1  //PTB1 TPM1_CH1
+#define PTB2_Pin 2  //PTB2 TPM2_CH0
+#define PTB3_Pin 3  //PTB3 TPM2_CH1
 #define UP 0x00   
 #define DOWN 0x11
 #define LEFT 0x10
@@ -14,7 +15,7 @@
 volatile uint8_t direction_left = 0x00;
 volatile uint8_t direction_right = 0x00;
 
-/** Sets up the pins used for pwm to control the motors */ 
+// Sets up the pins used for pwm to control the motors
 void initMotor (void) {
 	SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
 		
@@ -63,32 +64,9 @@ void initMotor (void) {
 	TPM2_C1SC |= (TPM_CnSC_ELSB(1) | TPM_CnSC_MSB(1));
 }
 
-/* The two functions below change the duty cycle of the PWM signal, changing the power supplied to the motors
-		which will change the speed that it runs at 
-void setLeftPower(uint8_t percentage) {
-	if (direction == 0x10) {
-		TPM2_C0V = 0;
-		TPM2_C1V = (int) (percentage * 7499.0 / 255);
-	} else {
-		TPM2_C0V = (int) (percentage * 7499.0 / 255);
-		TPM2_C1V = 0;
-	}
-}
 
-
-void setRightPower(uint8_t percentage) {
-	if (direction == 0x01) {
-		TPM1_C0V = 0;
-		TPM1_C1V = (int) (percentage * 7499.0 / 255);
-	} else {
-		TPM1_C0V = (int) (percentage * 7499.0 / 255);
-		TPM1_C1V = 0;
-	}
-}
-*/
-
-/* The two functions below change the duty cycle of the PWM signal, changing the power supplied to the motors
-		which will change the speed that it runs at */
+// The two functions below change the duty cycle of the PWM signal, changing the power supplied to the motors
+// which will change the speed that it runs at 
 void setLeftPower(uint8_t percentage) {
 		if (direction_left == LEFT) {
 				TPM2_C0V = (int) (percentage * 7499.0 / 255);
@@ -125,7 +103,6 @@ void stop(void) {
 }
 
 // functions to move robot are below
-
 void forward(void) {
 	direction_left = UP;
 	direction_right = UP;

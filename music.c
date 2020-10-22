@@ -4,6 +4,7 @@
 
 #include "music.h"
 
+// data to play start music
 const note_t start_notes[] = {
 	{660, 100, 150},
 	{660, 100, 300},
@@ -14,6 +15,7 @@ const note_t start_notes[] = {
 	{380, 100, 575}
 };
 
+// data to play loop music
 const note_t loop_notes[] = {
 	{510, 100, 450},
 	{380, 100, 400},
@@ -203,6 +205,7 @@ const note_t loop_notes[] = {
 	{770, 100, 550}
 };
 
+// data to play end music
 const note_t end_notes[] = {
 	{196, 166, 20},
 	{262, 166, 20},

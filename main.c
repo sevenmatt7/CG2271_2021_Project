@@ -151,7 +151,8 @@ void UART2_IRQHandler(void) {
 }
 
 /** =============== PROGRAM THREADS =============== **/
-//This is the thread that executes throughout as the robot is moving
+//This is the thread that executes throughout as the robot is moving and is stationary before the end tune is played, it will 
+// continually play the loop music 
 void tLoopMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, LOOP_FLAG, osFlagsNoClear, osWaitForever);
@@ -159,7 +160,8 @@ void tLoopMusic(void *argument) {
 	}
 }
 
-// This is the thread that executes after the robot has received confirmation that it has reached the end of the maze
+// This is the thread that executes after the robot has received confirmation that it has reached the end of the course, it will
+// play the end tune
 void tEndMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, END_FLAG, osFlagsWaitAny, osWaitForever);
@@ -169,7 +171,8 @@ void tEndMusic(void *argument) {
 	}
 }
 
-// This is the thread that executes after the robot has received confirmation of bluetooth connection from the app
+// This is the thread that executes after the robot has received confirmation of bluetooth connection from the app, it will cause
+// the Green LEDs at the front to blink twice
 void tBluetooth(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsNoClear, osWaitForever);
@@ -179,11 +182,11 @@ void tBluetooth(void *argument) {
 	}
 }
 
+// This is the thread that executes at the same time as tBluetooth as it will play the start tune
 void tStartMusic(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, CONNECT_FLAG, osFlagsWaitAny, osWaitForever);
 		start_theme();
-		
 		osEventFlagsSet(event_select, LOOP_FLAG);
 	}
 }
@@ -257,14 +260,14 @@ void tBrain(void *argument) {
 			case 0x06: //if 06 is received from bluetooth, this signals to the robot that bluetooth has been established
 				osEventFlagsSet(event_select, CONNECT_FLAG);
 				break;
-			case 0x07:  //if 01 is received from bluetooth, the robot will pivot left
+			case 0x07:  //if 07 is received from bluetooth, the robot will pivot left
 				pivotLeft();
 				osEventFlagsClear(event_select, STATIONARY_FLAG);
 				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
 				*isStopped = false;
 				*isEnded = false;
 				break;
-			case 0x08:  //if 04 is received from bluetooth, the robot will pivot right
+			case 0x08:  //if 08 is received from bluetooth, the robot will pivot right
 				pivotRight();
 				osEventFlagsClear(event_select, STATIONARY_FLAG);
 				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
@@ -285,6 +288,7 @@ int main (void) {
 	init_music();
 	initUART2();
 	initMotor();
+
 	// Initialise mutex and event flags to prevent race conditions
 	mutex_led = osMutexNew(NULL);
 

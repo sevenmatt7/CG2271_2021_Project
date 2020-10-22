@@ -38,6 +38,7 @@ void init_led(void) {
 				| MASK(GREEN_LED_5) | MASK(GREEN_LED_6) | MASK(GREEN_LED_7) | MASK(GREEN_LED_8));
 }
 
+// This function will turn on the LED (Write a 1 to the PDOR) given as the argument of the function
 void flash_led(color_t color) {
 	// The LEDs are active high
 	switch (color) {
@@ -71,6 +72,7 @@ void flash_led(color_t color) {
 	}
 }
 
+// This function will turn off the LED (Write a 0 to the PDOR) given as the argument of the function
 void off_led(color_t color) {
 	switch (color) {
 		case Red:
@@ -103,10 +105,12 @@ void off_led(color_t color) {
 	}
 }
 
+// This function toggle the Red LED on and off (Write a 1 to the PTOR)
 void toggle_red(void) {
 	PTC->PTOR |= MASK(RED_LED);
 }
 
+// This function will make the Green LEDs operate in "running" mode
 void flash_green(volatile bool *shouldStop) {
 	for (int i = 0; i < green_led_num && !(*shouldStop); i++) {
 		flash_led(green_leds[i]);
@@ -115,18 +119,21 @@ void flash_green(volatile bool *shouldStop) {
 	}
 }
 
+// This function will turn on all the Green LEDs
 void on_green(void) {
 	for (int i = 0; i < green_led_num; i++) {
 		flash_led(green_leds[i]);
 	}
 }
 
+// This function will turn off all the Green LEDs
 void off_green(void) {
 	for (int i = 0; i < green_led_num; i++) {
 		off_led(green_leds[i]);
 	}
 }
 
+// This function will flash the Red LEDs (turn it on and off) for the duration specified
 void flash_red(int duration_ms) {
 	flash_led(Red);
 	osDelay(duration_ms);
@@ -134,16 +141,18 @@ void flash_red(int duration_ms) {
 	osDelay(duration_ms);
 }
 
+// This function will flash the RED LEDs with a 250ms delay in between
 void flash_red_fast(void) {
 	flash_red(250);
 }
 
+// This function will flash the RED LEDs with a 500ms delay in between
 void flash_red_slow(void) {
 	flash_red(500);
 	// PTC->PTOR |= MASK(RED_LED);
 }
 
-/* Green LEDs will be in running mode and red will flash SLOW */
+// Green LEDs will be in running mode and red will flash SLOW 
 void running_leds(volatile bool *shouldStop) {
 	off_green();
 	for (int i = 0; i < green_led_num && !(*shouldStop); i++) {
@@ -154,13 +163,13 @@ void running_leds(volatile bool *shouldStop) {
 	}
 }
 
-/* Green LEDs will be on throughout and red will flash FAST */
+// Green LEDs will be on throughout and red will flash FAST 
 void stationary_leds(void) {
 	on_green();
 	flash_red_fast();
 }
 
-/* When bluetooth connection is successful, green LEDs will blink twice*/
+// When bluetooth connection is successful, green LEDs will blink twice
 void connection_leds(void) {
 	on_green();
 	osDelay(200);
