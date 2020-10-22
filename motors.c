@@ -12,6 +12,7 @@
 #define SPEED 100
 
 volatile uint8_t direction_left = 0x00;
+volatile uint8_t direction_right = 0x00;
 
 /** Sets up the pins used for pwm to control the motors */ 
 void initMotor (void) {
@@ -89,10 +90,10 @@ void setRightPower(uint8_t percentage) {
 /* The two functions below change the duty cycle of the PWM signal, changing the power supplied to the motors
 		which will change the speed that it runs at */
 void setLeftPower(uint8_t percentage) {
-		if (direction == LEFT) {
+		if (direction_left == LEFT) {
 				TPM2_C0V = (int) (percentage * 7499.0 / 255);
 				TPM2_C1V = 0;
-		} else if (direction == DOWN) {
+		} else if (direction_left == DOWN) {
 				TPM2_C0V = 0;
 				TPM2_C1V = (int) (percentage * 7499.0 / 255);
 		} else {
@@ -103,10 +104,10 @@ void setLeftPower(uint8_t percentage) {
 
 
 void setRightPower(uint8_t percentage) {
-		if (direction == RIGHT) {
+		if (direction_right == RIGHT) {
 				TPM1_C0V = (int) (percentage * 7499.0 / 255);
 				TPM1_C1V = 0;
-		} else if (direction == DOWN) {
+		} else if (direction_right == DOWN) {
 				TPM1_C0V = 0;
 				TPM1_C1V = (int) (percentage * 7499.0 / 255);
 		} else {
@@ -126,37 +127,43 @@ void stop(void) {
 // functions to move robot are below
 
 void forward(void) {
-	direction = UP;
+	direction_left = UP;
+	direction_right = UP;
 	setLeftPower(SPEED);
 	setRightPower(SPEED);
 }
 
 void reverse(void) {
-	direction = DOWN;
+	direction_left = DOWN;
+	direction_right = DOWN;
 	setLeftPower(SPEED);
 	setRightPower(SPEED);
 }
 
 void turnRight(void) {
-	direction = LEFT;
+	direction_left = LEFT;
+	direction_right = LEFT;
 	setLeftPower(SPEED);
 	setRightPower(SPEED/4);
 }
 
 void turnLeft(void) {
-	direction = RIGHT;
+	direction_left = RIGHT;
+	direction_right = RIGHT;
 	setLeftPower(SPEED/4);
 	setRightPower(SPEED);
 }
 
 void pivotRight(void) {
-	direction = RIGHT;
+	direction_left = UP;
+	direction_right = DOWN;
 	setLeftPower(SPEED);
-	setRightPower(0);
+	setRightPower(SPEED);
 }
 
 void pivotLeft(void) {
-	direction = LEFT;
-	setLeftPower(0);
+	direction_left = DOWN;
+	direction_right = UP;
+	setLeftPower(SPEED);
 	setRightPower(SPEED);
 }
