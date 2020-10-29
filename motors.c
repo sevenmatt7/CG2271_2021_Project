@@ -10,7 +10,7 @@
 #define DOWN 0x11
 #define LEFT 0x10
 #define RIGHT 0x01
-#define SPEED 100
+#define SPEED 150
 
 volatile uint8_t direction_left = 0x00;
 volatile uint8_t direction_right = 0x00;
