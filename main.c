@@ -140,7 +140,7 @@ void UART2_IRQHandler(void) {
 	if (UART2->S1 & UART_S1_RDRF_MASK) {		
 		if (!Q_Full(&rx_q)) {
 			Q_Enqueue(&rx_q, UART2->D);
-			rx_data = Q_Dequeue(&rx_q);
+			
 			osEventFlagsSet(event_select, UART_FLAG);
 		} else {
 			//error - queue full
@@ -217,6 +217,7 @@ void tRunningLED(void *argument) {
 void tBrain(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, UART_FLAG, osFlagsWaitAny, osWaitForever);
+		rx_data = Q_Dequeue(&rx_q);
 		switch(rx_data) {
 			case 0x00:   //if 00 is received from bluetooth, the robot will be stationary
 				stop();
