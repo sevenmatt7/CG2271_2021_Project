@@ -12,3 +12,4 @@ void turnLeft(void);
 void turnRight(void);
 void pivotLeft(void);
 void pivotRight(void);
+void setSpeed(uint8_t speed);

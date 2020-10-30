@@ -226,7 +226,7 @@ void tBrain(void *argument) {
 				*isStopped = true;
 				*isEnded = false;
 				break;
-			case 0x01:   //if 03 is received from bluetooth, the robot will move forward
+			case 0x01:   //if 01 is received from bluetooth, the robot will move forward
 				forward();
 				osEventFlagsClear(event_select, STATIONARY_FLAG);
 				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
@@ -274,6 +274,9 @@ void tBrain(void *argument) {
 				osEventFlagsSet(event_select, RUNNING_LED_FLAG);
 				*isStopped = false;
 				*isEnded = false;
+				break;
+			default:  //if other numbers are received, it means the speed is received
+				setSpeed(rx_data);
 				break;
 		}
 	}

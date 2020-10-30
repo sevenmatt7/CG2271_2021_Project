@@ -10,7 +10,9 @@
 #define DOWN 0x11
 #define LEFT 0x10
 #define RIGHT 0x01
-#define SPEED 150
+
+
+int SPEED  = 150;
 
 volatile uint8_t direction_left = 0x00;
 volatile uint8_t direction_right = 0x00;
@@ -92,6 +94,10 @@ void setRightPower(uint8_t percentage) {
 				TPM1_C0V = (int) (percentage * 7499.0 / 255);
 				TPM1_C1V = 0;
 		}
+}
+
+void setSpeed(uint8_t speed) {
+	SPEED = speed;
 }
 
 // to stop all the motors
