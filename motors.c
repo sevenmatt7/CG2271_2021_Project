@@ -140,13 +140,13 @@ void turnLeft(void) {
 void pivotRight(void) {
 	direction_left = UP;
 	direction_right = DOWN;
-	setLeftPower(SPEED);
-	setRightPower(SPEED);
+	setLeftPower(150);
+	setRightPower(150);
 }
 
 void pivotLeft(void) {
 	direction_left = DOWN;
 	direction_right = UP;
-	setLeftPower(SPEED);
-	setRightPower(SPEED);
+	setLeftPower(150);
+	setRightPower(150);
 }

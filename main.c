@@ -18,7 +18,7 @@
 #define UART_RX_PORTE23 23
 //#define UART_RX_PORTD2 2
 #define UART2_INT_PRIO 128
-#define Q_SIZE (32)
+#define Q_SIZE (64)
 
 /** =============== EVENT FLAGS =============== **/
 #define UART_FLAG 0x00000001
@@ -32,7 +32,6 @@
 /** =============== GLOBAL VARIABLES =============== **/
 volatile bool *isStopped = &(bool){false};
 volatile bool *isEnded = &(bool){false};
-volatile uint8_t rx_data = 0x00;
 
 osEventFlagsId_t event_select;
 osMutexId_t mutex_led;
@@ -217,7 +216,7 @@ void tRunningLED(void *argument) {
 void tBrain(void *argument) {
 	while (true) {
 		osEventFlagsWait(event_select, UART_FLAG, osFlagsWaitAny, osWaitForever);
-		rx_data = Q_Dequeue(&rx_q);
+		uint8_t rx_data = Q_Dequeue(&rx_q);
 		switch(rx_data) {
 			case 0x00:   //if 00 is received from bluetooth, the robot will be stationary
 				stop();
@@ -277,8 +276,10 @@ void tBrain(void *argument) {
 				break;
 			default:  //if other numbers are received, it means the speed is received
 				setSpeed(rx_data);
+				stop();
 				break;
 		}
+		stop();
 	}
 }
 
